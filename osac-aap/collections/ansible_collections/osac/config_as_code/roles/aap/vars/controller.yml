@@ -2,7 +2,12 @@
 gateway_settings:
   gateway_access_token_expiration: 7200
 
-# Create a project from the specified git repo
+# Create a project from the specified git repo. scm_url/scm_branch aren't
+# set here -- configure_project_scm.yml merges them in at runtime from
+# aap_project_git_uri/aap_project_git_branch (config.yml), which now default
+# to the mono-repo. AWX/Controller Projects clone the whole repo with no
+# native subdirectory-scoping mechanism, so every playbook: path below is
+# prefixed with osac-aap/ to stay resolvable against that mono-repo checkout.
 controller_projects: # noqa: var-naming[no-role-prefix]
   - name: "{{ aap_prefix }}"
     description: "{{ aap_project_name }}'s project"
@@ -19,7 +24,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_create_hosted_cluster.yml"
+    playbook: "osac-aap/playbook_osac_create_hosted_cluster.yml"
     inventory: "{{ aap_prefix }}-cluster-fulfillment"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -31,7 +36,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_delete_hosted_cluster.yml"
+    playbook: "osac-aap/playbook_osac_delete_hosted_cluster.yml"
     inventory: "{{ aap_prefix }}-cluster-fulfillment"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -43,7 +48,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_config_as_code.yml"
+    playbook: "osac-aap/playbook_osac_config_as_code.yml"
     inventory: "{{ aap_prefix }}-config-as-code"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -53,7 +58,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "collections/ansible_collections/osac/service/playbooks/publish_templates.yaml"
+    playbook: "osac-aap/collections/ansible_collections/osac/service/playbooks/publish_templates.yaml"
     inventory: "{{ aap_prefix }}-publish-templates"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -63,7 +68,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_create_hosted_cluster_post_install.yml"
+    playbook: "osac-aap/playbook_osac_create_hosted_cluster_post_install.yml"
     inventory: "{{ aap_prefix }}-cluster-fulfillment"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -75,7 +80,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_create_compute_instance.yml"
+    playbook: "osac-aap/playbook_osac_create_compute_instance.yml"
     inventory: "{{ aap_prefix }}-compute-instance-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -87,7 +92,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_delete_compute_instance.yml"
+    playbook: "osac-aap/playbook_osac_delete_compute_instance.yml"
     inventory: "{{ aap_prefix }}-compute-instance-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -99,7 +104,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_report_hosted_cluster_status.yml"
+    playbook: "osac-aap/playbook_osac_report_hosted_cluster_status.yml"
     inventory: "{{ aap_prefix }}-cluster-fulfillment"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -113,7 +118,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_report_hosted_cluster_status.yml"
+    playbook: "osac-aap/playbook_osac_report_hosted_cluster_status.yml"
     inventory: "{{ aap_prefix }}-cluster-fulfillment"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -127,7 +132,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_create_virtual_network.yml"
+    playbook: "osac-aap/playbook_osac_create_virtual_network.yml"
     inventory: "{{ aap_prefix }}-networking-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -139,7 +144,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_delete_virtual_network.yml"
+    playbook: "osac-aap/playbook_osac_delete_virtual_network.yml"
     inventory: "{{ aap_prefix }}-networking-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -151,7 +156,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_create_subnet.yml"
+    playbook: "osac-aap/playbook_osac_create_subnet.yml"
     inventory: "{{ aap_prefix }}-networking-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -163,7 +168,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_delete_subnet.yml"
+    playbook: "osac-aap/playbook_osac_delete_subnet.yml"
     inventory: "{{ aap_prefix }}-networking-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -175,7 +180,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_create_external_ip_pool.yml"
+    playbook: "osac-aap/playbook_osac_create_external_ip_pool.yml"
     inventory: "{{ aap_prefix }}-networking-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -187,7 +192,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_delete_external_ip_pool.yml"
+    playbook: "osac-aap/playbook_osac_delete_external_ip_pool.yml"
     inventory: "{{ aap_prefix }}-networking-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -201,7 +206,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_create_external_ip.yml"
+    playbook: "osac-aap/playbook_osac_create_external_ip.yml"
     inventory: "{{ aap_prefix }}-networking-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -213,7 +218,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_delete_external_ip.yml"
+    playbook: "osac-aap/playbook_osac_delete_external_ip.yml"
     inventory: "{{ aap_prefix }}-networking-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -225,7 +230,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_attach_external_ip.yml"
+    playbook: "osac-aap/playbook_osac_attach_external_ip.yml"
     inventory: "{{ aap_prefix }}-networking-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -237,7 +242,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_detach_external_ip.yml"
+    playbook: "osac-aap/playbook_osac_detach_external_ip.yml"
     inventory: "{{ aap_prefix }}-networking-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -249,7 +254,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_create_security_group.yml"
+    playbook: "osac-aap/playbook_osac_create_security_group.yml"
     inventory: "{{ aap_prefix }}-networking-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -261,7 +266,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_delete_security_group.yml"
+    playbook: "osac-aap/playbook_osac_delete_security_group.yml"
     inventory: "{{ aap_prefix }}-networking-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -273,7 +278,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_import_agents.yml"
+    playbook: "osac-aap/playbook_osac_import_agents.yml"
     inventory: "{{ aap_prefix }}-cluster-fulfillment"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -285,7 +290,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_create_bare_metal_pool.yml"
+    playbook: "osac-aap/playbook_osac_create_bare_metal_pool.yml"
     inventory: "{{ aap_prefix }}-bare-metal-fulfillment"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -297,7 +302,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_delete_bare_metal_pool.yml"
+    playbook: "osac-aap/playbook_osac_delete_bare_metal_pool.yml"
     inventory: "{{ aap_prefix }}-bare-metal-fulfillment"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -309,7 +314,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_create_bare_metal_instance.yml"
+    playbook: "osac-aap/playbook_osac_create_bare_metal_instance.yml"
     inventory: "{{ aap_prefix }}-bare-metal-fulfillment"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -321,7 +326,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_delete_bare_metal_instance.yml"
+    playbook: "osac-aap/playbook_osac_delete_bare_metal_instance.yml"
     inventory: "{{ aap_prefix }}-bare-metal-fulfillment"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -337,7 +342,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_create_tenant_storage_backend.yml"
+    playbook: "osac-aap/playbook_osac_create_tenant_storage_backend.yml"
     inventory: "{{ aap_prefix }}-storage-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -349,7 +354,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_create_tenant_cluster_storage.yml"
+    playbook: "osac-aap/playbook_osac_create_tenant_cluster_storage.yml"
     inventory: "{{ aap_prefix }}-storage-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -361,7 +366,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_delete_tenant_cluster_storage.yml"
+    playbook: "osac-aap/playbook_osac_delete_tenant_cluster_storage.yml"
     inventory: "{{ aap_prefix }}-storage-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -373,7 +378,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_delete_tenant_storage_backend.yml"
+    playbook: "osac-aap/playbook_osac_delete_tenant_storage_backend.yml"
     inventory: "{{ aap_prefix }}-storage-operations"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:
@@ -385,7 +390,7 @@ controller_templates: # noqa: var-naming[no-role-prefix]
     project: "{{ aap_prefix }}"
     organization: "{{ aap_organization_name }}"
     job_type: run
-    playbook: "playbook_osac_import_bcm_agents.yml"
+    playbook: "osac-aap/playbook_osac_import_bcm_agents.yml"
     inventory: "{{ aap_prefix }}-cluster-fulfillment"
     execution_environment: "{{ aap_prefix }}-ee"
     instance_groups:

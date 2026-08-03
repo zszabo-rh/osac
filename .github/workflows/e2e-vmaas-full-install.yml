@@ -77,7 +77,7 @@ jobs:
   e2e-vmaas-full-install:
     needs: changes
     if: needs.changes.outputs.should-run == 'true'
-    uses: osac-project/osac-test-infra/.github/workflows/e2e-vmaas-full-install.yml@main
+    uses: osac-project/osac-test-infra/.github/workflows/e2e-vmaas-full-install.yml@705727fe58e37f71424af9ba92e5ef5a5ea81435
     with:
       test-suite: ${{ inputs.test-suite || 'vmaas' }}
       test-filter: ${{ inputs.test-filter || '' }}

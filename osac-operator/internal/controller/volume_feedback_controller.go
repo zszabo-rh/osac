@@ -20,6 +20,8 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
+	apiMeta "k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	clnt "sigs.k8s.io/controller-runtime/pkg/client"
@@ -34,7 +36,8 @@ import (
 // VolumeFeedbackReconciler syncs Volume CR status from the hub cluster back
 // to the fulfillment-service via the private Volumes gRPC API. It maps CRD
 // phases to proto states and copies vendor-assigned fields (vendorVolumeID,
-// provider, protocol) so the fulfillment-service inventory stays current.
+// provider, protocol, and failure messages) so the fulfillment-service
+// inventory stays current.
 type VolumeFeedbackReconciler struct {
 	bridge          *feedback.Bridge[*v1alpha1.Volume, *privatev1.Volume]
 	volumeNamespace string
@@ -77,7 +80,7 @@ func NewVolumeFeedbackReconciler(hubClient clnt.Client, grpcConn *grpc.ClientCon
 			_, err := volClient.Update(ctx, privatev1.VolumesUpdateRequest_builder{
 				Object: remote,
 				UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{
-					feedbackStatusStatePath, "status.vendor_volume_id", "status.vendor_context", "status.protocol", "status.provider",
+					feedbackStatusStatePath, "status.message", "status.vendor_volume_id", "status.vendor_context", "status.protocol", "status.provider",
 				}},
 			}.Build())
 			return err
@@ -119,6 +122,7 @@ func (r *VolumeFeedbackReconciler) Reconcile(ctx context.Context, request ctrl.R
 // the PVC/PV references that the operator populates after provisioning.
 func syncVolumeUpdate(ctx context.Context, obj *v1alpha1.Volume, remote *privatev1.Volume) error {
 	syncVolumePhase(ctx, obj, remote)
+	syncVolumeStatusMessage(obj, remote)
 	syncVolumeVendorFields(ctx, obj, remote)
 	return nil
 }
@@ -155,6 +159,21 @@ func syncVolumePhase(ctx context.Context, obj *v1alpha1.Volume, remote *privatev
 		log := ctrllog.FromContext(ctx)
 		log.Info("Unknown phase, will ignore it", "phase", obj.Status.Phase)
 	}
+}
+
+// syncVolumeStatusMessage carries the operator's detailed provisioning error
+// to fulfillment. The vendor provisioner puts its error in the
+// VendorProvisioned condition, while the private API exposes status.message
+// for consumers such as the CSI driver. Clear stale messages once a volume is
+// no longer failed.
+func syncVolumeStatusMessage(obj *v1alpha1.Volume, remote *privatev1.Volume) {
+	condition := apiMeta.FindStatusCondition(obj.Status.Conditions, string(v1alpha1.VolumeConditionVendorProvisioned))
+	if obj.Status.Phase == v1alpha1.VolumePhaseFailed && condition != nil &&
+		condition.Status == metav1.ConditionFalse && condition.Message != "" {
+		remote.GetStatus().SetMessage(condition.Message)
+		return
+	}
+	remote.GetStatus().ClearMessage()
 }
 
 // syncVolumeVendorFields copies the vendor-assigned identifiers (and vendor

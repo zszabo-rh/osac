@@ -83,5 +83,5 @@ spec:
             type: Directory
         - name: lvms-socket-dir
           hostPath:
-            path: {{ .Values.node.lvmsNodeSocketDir }}
+            path: {{ .Values.node.lvmsNodeSocketHostPath }}
             type: DirectoryOrCreate
